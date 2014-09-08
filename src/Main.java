@@ -22,7 +22,10 @@ public class Main {
 
 		// modify all byte string of torrent name and files name
 		BencodeDictionaryType info = bitFile.getInfo();
-		String originName = ((BencodeByteStringType) info.lookup("name.utf-8"))
+		String label = "name.utf-8";
+		if (info.lookup("name.utf-8") == null)
+			label = "name";
+		String originName = ((BencodeByteStringType) info.lookup(label))
 				.getString();
 		System.out.println("Origin name: " + originName);
 		System.out.print("Please set new name: ");
@@ -30,7 +33,7 @@ public class Main {
 		String newName = scanner.next();
 
 		byte[] bytes = newName.getBytes();
-		((BencodeByteStringType) info.lookup("name.utf-8")).setStringType(
+		((BencodeByteStringType) info.lookup(label)).setStringType(
 				bytes.length, bytes);
 
 		List<BencodeType> files = ((BencodeListType) info.lookup("files"))
@@ -38,10 +41,17 @@ public class Main {
 		int count = 0;
 		for (BencodeType file : files) {
 			count++;
-			BencodeByteStringType byteString = (BencodeByteStringType)(((BencodeListType)((BencodeDictionaryType) file).lookup("path.utf-8")).getNativeValue().get(0));
+			label = "path.utf-8";
+			if (((BencodeDictionaryType) file).lookup("path.utf-8") == null)
+				label = "path";
+			BencodeByteStringType byteString = (BencodeByteStringType) (((BencodeListType) ((BencodeDictionaryType) file)
+					.lookup(label)).getNativeValue().get(0));
 			String fileName = byteString.getString();
-			String newFileName = ""+count+fileName.substring(fileName.lastIndexOf("."));
-			//System.out.println(newFileName);
+			String newFileName = "" + count;
+			if (fileName.lastIndexOf(".") > -1)
+				newFileName = "" + count
+						+ fileName.substring(fileName.lastIndexOf("."));
+			// System.out.println(newFileName);
 			bytes = newFileName.getBytes();
 			byteString.setStringType(bytes.length, bytes);
 		}
