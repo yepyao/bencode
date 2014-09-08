@@ -10,10 +10,12 @@ import com.kylc.torrent.io.bencode.BencodeInputStream;
 public class BitTorrentFile {
 	private final String announce;
 	private final BencodeDictionaryType info;
+	public final BencodeDictionaryType root;
 	
-	public BitTorrentFile(String announce, BencodeDictionaryType info) {
-		this.announce = announce;
-		this.info = info;
+	public BitTorrentFile(BencodeDictionaryType root) {
+		this.root = root;
+		announce = (String) root.lookup("announce").getNativeValue();
+		info = (BencodeDictionaryType) root.lookup("info");
 	}
 	
 	public static BitTorrentFile open(String path) throws IOException {
@@ -24,10 +26,11 @@ public class BitTorrentFile {
 		BencodeInputStream in = new BencodeInputStream(new FileInputStream(file));
 		BencodeDictionaryType root = (BencodeDictionaryType) in.readNextType();
 		
-		String announce = (String) root.lookup("announce").getNativeValue();
-		BencodeDictionaryType info = (BencodeDictionaryType) root.lookup("info");
-		
-		return new BitTorrentFile(announce, info);
+		return new BitTorrentFile(root);
+	}
+	
+	public BencodeDictionaryType getRoot() {
+		return root;
 	}
 	
 	public String getAnnounce() {

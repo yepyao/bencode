@@ -3,11 +3,12 @@ package com.kylc.torrent.io.bencode;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 public class BencodeByteStringType extends BencodeType {
-	private final int length;
-	private final byte[] value;
+	private int length;
+	private byte[] value;
 	
 	public BencodeByteStringType(byte[] value) {
 		this(value.length, value);
@@ -16,6 +17,22 @@ public class BencodeByteStringType extends BencodeType {
 	public BencodeByteStringType(int length, byte[] value) {
 		this.length = length;
 		this.value = value;
+	}
+	
+	public void setStringType(int length, byte[] value) {
+		this.length = length;
+		this.value = value;
+	}
+	
+	public String getString(){
+		try {
+			return new String(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return "";
 	}
 	
 	public static BencodeType parse(BufferedInputStream input) throws IOException {
